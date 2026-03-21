@@ -1,0 +1,132 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #eef2ff;
+}
+
+/* LOGIN */
+.login {
+  text-align: center;
+  padding: 100px;
+  background: #0f172a;
+  color: white;
+  height: 100vh;
+}
+
+.login input {
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 8px;
+  border: none;
+}
+
+.logo {
+  height: 100px;
+  margin-bottom: 20px;
+}
+
+/* HEADER */
+.header {
+  background: white;
+  padding: 12px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 3px solid #1e3a8a;
+}
+
+.logoWrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logoSmall {
+  height: 50px;
+}
+
+.title {
+  font-weight: 900;
+  color: #1e3a8a;
+}
+
+.sub {
+  font-size: 11px;
+  color: gray;
+}
+
+/* MENU */
+.menu {
+  display: flex;
+  gap: 20px;
+  font-weight: 600;
+  color: #1e3a8a;
+}
+
+.menu span {
+  cursor: pointer;
+}
+
+.menu span:hover {
+  text-decoration: underline;
+}
+
+/* BUTTON */
+button {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  background: #1e3a8a;
+  color: white;
+  cursor: pointer;
+}
+
+.logout {
+  background: #dc2626;
+}
+
+/* CONTENT */
+.container {
+  padding: 20px;
+}
+
+/* FORM */
+.form input,
+.form select {
+  margin: 5px;
+  padding: 8px;
+}
+
+/* TABLE */
+table {
+  width: 100%;
+  margin-top: 20px;
+  border-collapse: collapse;
+  background: white;
+}
+
+th {
+  background: #1e3a8a;
+  color: white;
+  padding: 10px;
+}
+
+td {
+  border: 1px solid #ddd;
+  height: 70px;
+  position: relative;
+}
+
+/* CLASS */
+.classBox {
+  position: absolute;
+  inset: 5px;
+  background: linear-gradient(135deg, #2563eb, #1e3a8a);
+  color: white;
+  border-radius: 8px;
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
