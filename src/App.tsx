@@ -7,7 +7,7 @@ const logo =
 function App() {
   const [role, setRole] = useState<string | null>(null);
   const [id, setId] = useState("");
-  const [classes, setClasses] = useState<any[]>([]);
+  const [classes, setClasses] = useState<any>([]);;
   const [newClass, setNewClass] = useState({
     name: "",
     teacher: "",
