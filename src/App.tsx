@@ -15,7 +15,7 @@ function App() {
     time: "07:00",
   });
 
-  const days = ["Thứ 2","Thứ 3","Thứ 4","Thứ 5","Thứ 6","Thứ 7"];
+  const days = ["Thứ 2","Thứ 3","Thứ 4","Thứ 5","Thứ 6","Thứ 7","Chủ Nhật"];
 
   const times = [
     "07:00","08:00","09:00","10:00","11:00",
@@ -31,7 +31,7 @@ function App() {
         <input
           value={id}
           onChange={(e) => setId(e.target.value)}
-          placeholder="admin hoặc MSSV"
+          placeholder="Nhập Mã Số Sinh Viên"
         />
         <button
           onClick={() =>
