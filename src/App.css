@@ -130,3 +130,17 @@ td {
   justify-content: center;
   align-items: center;
 }
+/* MOBILE */
+@media (max-width: 600px) {
+  .menu {
+    display: none;
+  }
+
+  .header {
+    flex-direction: column;
+  }
+
+  table {
+    font-size: 10px;
+  }
+}
