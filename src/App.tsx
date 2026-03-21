@@ -7,22 +7,22 @@ const logo =
 function App() {
   const [role, setRole] = useState<string | null>(null);
   const [id, setId] = useState("");
-  const [classes, setClasses] = useState<any>([]);;
-  const [newClass, setNewClass] = useState({
+  const [classes, setClasses] = useState<any[]>([]);
+  const [newClass, setNewClass] = useState<any>({
     name: "",
     teacher: "",
     day: "Thứ 2",
     time: "07:00",
   });
 
-  const days = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7","Chủ Nhật"];
-  const times = [const times = [
-  "07:00","08:00","09:00","10:00","11:00",
-  "12:00","13:00","14:00","15:00","16:00",
-  "17:00","18:00","19:00","20:00","21:00"
-];];
+  const days = ["Thứ 2","Thứ 3","Thứ 4","Thứ 5","Thứ 6","Thứ 7"];
 
-  // LOGIN
+  const times = [
+    "07:00","08:00","09:00","10:00","11:00",
+    "12:00","13:00","14:00","15:00","16:00",
+    "17:00","18:00","19:00","20:00","21:00"
+  ];
+
   if (!role) {
     return (
       <div className="login">
@@ -31,7 +31,7 @@ function App() {
         <input
           value={id}
           onChange={(e) => setId(e.target.value)}
-          placeholder="Nhập Mã số sinh viên"
+          placeholder="admin hoặc MSSV"
         />
         <button
           onClick={() =>
@@ -46,7 +46,6 @@ function App() {
 
   return (
     <div>
-      {/* HEADER */}
       <header className="header">
         <div className="logoWrap">
           <img src={logo} className="logoSmall" />
@@ -56,22 +55,14 @@ function App() {
           </div>
         </div>
 
-        <div className="menu">
-          <span>Trang chủ</span>
-          <span>Lịch học</span>
-          <span>Thông báo</span>
-        </div>
-
         <button onClick={() => setRole(null)} className="logout">
           Đăng xuất
         </button>
       </header>
 
-      {/* CONTENT */}
       <div className="container">
         <h2>THỜI KHÓA BIỂU</h2>
 
-        {/* ADMIN */}
         {role === "admin" && (
           <div className="form">
             <input
@@ -107,15 +98,12 @@ function App() {
               ))}
             </select>
 
-            <button
-              onClick={() => setClasses([...classes, newClass])}
-            >
+            <button onClick={() => setClasses([...classes, newClass])}>
               Thêm lịch
             </button>
           </div>
         )}
 
-        {/* TABLE */}
         <table>
           <thead>
             <tr>
@@ -132,7 +120,7 @@ function App() {
                 <td>{t}</td>
                 {days.map((d) => {
                   const c = classes.find(
-                    (x) => x.day === d && x.time === t
+                    (x: any) => x.day === d && x.time === t
                   );
                   return (
                     <td key={d}>
