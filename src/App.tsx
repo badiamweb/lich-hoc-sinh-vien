@@ -1,142 +1,101 @@
-import { useState } from "react";
+
 import "./App.css";
 
-const logo =
-  "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg";
+const startHour = 7;
+const endHour = 18;
+
+const subjects = [
+  {
+    name: "Tư tưởng Hồ Chí Minh",
+    teacher: "Bùi Kim Ánh",
+    room: "A101",
+    day: 1,
+    start: 9,
+    end: 11,
+  },
+  {
+    name: "Môi Trường",
+    teacher: "Nguyễn Thị Xuân Thảo",
+    room: "B203",
+    day: 1,
+    start: 13,
+    end: 15,
+  },
+  {
+    name: "Lập trình Hướng Đối Tượng",
+    teacher: "Đinh Ngọc Diệp",
+    room: "Lab 3",
+    day: 1,
+    start: 17,
+    end: 18,
+  },
+  {
+    name: "Triết học Mác Lênin",
+    teacher: "Trần Minh Hiếu",
+    room: "C105",
+    day: 2,
+    start: 17,
+    end: 18,
+  },
+  {
+    name: "Tiếng Anh 1",
+    teacher: "Nguyễn Mai Phương",
+    room: "D202",
+    day: 3,
+    start: 17,
+    end: 18,
+  },
+];
 
 function App() {
-  const [role, setRole] = useState<string | null>(null);
-  const [id, setId] = useState("");
-  const [classes, setClasses] = useState<any[]>([]);
-  const [newClass, setNewClass] = useState<any>({
-    name: "",
-    teacher: "",
-    day: "Thứ 2",
-    time: "07:00",
-  });
-
-  const days = ["Thứ 2","Thứ 3","Thứ 4","Thứ 5","Thứ 6","Thứ 7","Chủ Nhật"];
-
-  const times = [
-    "07:00","08:00","09:00","10:00","11:00",
-    "12:00","13:00","14:00","15:00","16:00",
-    "17:00","18:00","19:00","20:00","21:00"
-  ];
-
-  if (!role) {
-    return (
-      <div className="login">
-        <img src={logo} className="logo" />
-        <h2>HỆ THỐNG LỊCH HỌC GIA ĐỊNH</h2>
-        <input
-          value={id}
-          onChange={(e) => setId(e.target.value)}
-          placeholder="Nhập Mã Số Sinh Viên"
-        />
-        <button
-          onClick={() =>
-            id === "admin" ? setRole("admin") : setRole("student")
-          }
-        >
-          Đăng nhập
-        </button>
-      </div>
-    );
-  }
+  const hours = Array.from(
+    { length: endHour - startHour + 1 },
+    (_, i) => startHour + i
+  );
 
   return (
-    <div>
-      <header className="header">
-        <div className="logoWrap">
-          <img src={logo} className="logoSmall" />
-          <div>
-            <div className="title">ĐẠI HỌC GIA ĐỊNH</div>
-            <div className="sub">CỔNG THÔNG TIN SINH VIÊN</div>
-          </div>
+    <div className="container">
+      <h2>THỜI KHÓA BIỂU</h2>
+
+      <div className="table">
+        <div className="header">
+          <div>Giờ</div>
+          <div>Thứ 2</div>
+          <div>Thứ 3</div>
+          <div>Thứ 4</div>
+          <div>Thứ 5</div>
+          <div>Thứ 6</div>
+          <div>Thứ 7</div>
         </div>
 
-        <button onClick={() => setRole(null)} className="logout">
-          Đăng xuất
-        </button>
-      </header>
+        {hours.map((hour) => (
+          <div className="row" key={hour}>
+            <div className="time">{hour}:00</div>
 
-      <div className="container">
-        <h2>THỜI KHÓA BIỂU</h2>
+            {[1, 2, 3, 4, 5, 6].map((day) => {
+              const subject = subjects.find(
+                (s) => s.day === day && s.start === hour
+              );
 
-        {role === "admin" && (
-          <div className="form">
-            <input
-              placeholder="Tên môn"
-              onChange={(e) =>
-                setNewClass({ ...newClass, name: e.target.value })
-              }
-            />
-            <input
-              placeholder="Giảng viên"
-              onChange={(e) =>
-                setNewClass({ ...newClass, teacher: e.target.value })
-              }
-            />
-
-            <select
-              onChange={(e) =>
-                setNewClass({ ...newClass, day: e.target.value })
-              }
-            >
-              {days.map((d) => (
-                <option key={d}>{d}</option>
-              ))}
-            </select>
-
-            <select
-              onChange={(e) =>
-                setNewClass({ ...newClass, time: e.target.value })
-              }
-            >
-              {times.map((t) => (
-                <option key={t}>{t}</option>
-              ))}
-            </select>
-
-            <button onClick={() => setClasses([...classes, newClass])}>
-              Thêm lịch
-            </button>
+              return (
+                <div className="cell" key={day}>
+                  {subject && (
+                    <div
+                      className="class"
+                      style={{
+                        height: `${(subject.end - subject.start) * 60}px`,
+                      }}
+                    >
+                      <b>{subject.name}</b>
+                      <div>{subject.teacher}</div>
+                      <div className="room">{subject.room}</div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
-        )}
-
-        <table>
-          <thead>
-            <tr>
-              <th>Giờ</th>
-              {days.map((d) => (
-                <th key={d}>{d}</th>
-              ))}
-            </tr>
-          </thead>
-
-          <tbody>
-            {times.map((t) => (
-              <tr key={t}>
-                <td>{t}</td>
-                {days.map((d) => {
-                  const c = classes.find(
-                    (x: any) => x.day === d && x.time === t
-                  );
-                  return (
-                    <td key={d}>
-                      {c && (
-                        <div className="classBox">
-                          <b>{c.name}</b>
-                          <span>{c.teacher}</span>
-                        </div>
-                      )}
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        ))}
       </div>
     </div>
   );
