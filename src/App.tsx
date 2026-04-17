@@ -1,18 +1,26 @@
 import { useState, useEffect } from "react";
 
 const DAYS = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
-const HOURS = Array.from({ length: 12 }, (_, i) => i + 7); // 7 -> 18
+const HOURS = Array.from({ length: 12 }, (_, i) => i + 7);
 
 const COLORS = [
-  { bg: "#1565C0", light: "#E3F2FD", border: "#1976D2" },
-  { bg: "#00695C", light: "#E0F2F1", border: "#00796B" },
-  { bg: "#6A1B9A", light: "#F3E5F5", border: "#7B1FA2" },
-  { bg: "#E65100", light: "#FFF3E0", border: "#F57C00" },
-  { bg: "#AD1457", light: "#FCE4EC", border: "#C2185B" },
-  { bg: "#1B5E20", light: "#E8F5E9", border: "#2E7D32" },
+  { bg: "#1565C0", border: "#1976D2" },
+  { bg: "#00695C", border: "#00796B" },
+  { bg: "#6A1B9A", border: "#7B1FA2" },
+  { bg: "#E65100", border: "#F57C00" },
+  { bg: "#AD1457", border: "#C2185B" },
+  { bg: "#1B5E20", border: "#2E7D32" },
 ];
 
-const INITIAL_SUBJECTS = [
+const CELL_HEIGHT = 64;
+
+interface Subject { id: number; name: string; teacher: string; colorIdx: number; }
+interface Room { id: number; name: string; }
+interface ScheduleEntry { id: number; subjectId: number; roomId: number; day: number; startTime: number; endTime: number; }
+interface LoginForm { username: string; password: string; error: string; }
+interface ScheduleForm { subjectId: number | string; roomId: number | string; day: number | string; startTime: number | string; endTime: number | string; }
+
+const INITIAL_SUBJECTS: Subject[] = [
   { id: 1, name: "Lập Trình Web", teacher: "TS. Nguyễn Văn A", colorIdx: 0 },
   { id: 2, name: "Cơ Sở Dữ Liệu", teacher: "ThS. Trần Thị B", colorIdx: 1 },
   { id: 3, name: "Mạng Máy Tính", teacher: "PGS. Lê Văn C", colorIdx: 2 },
@@ -20,13 +28,13 @@ const INITIAL_SUBJECTS = [
   { id: 5, name: "Kiến Trúc Máy Tính", teacher: "ThS. Hoàng Văn E", colorIdx: 4 },
 ];
 
-const INITIAL_ROOMS = [
+const INITIAL_ROOMS: Room[] = [
   { id: 1, name: "C1-101" }, { id: 2, name: "C2-203" },
   { id: 3, name: "B3-301" }, { id: 4, name: "A1-405" },
   { id: 5, name: "D2-102" },
 ];
 
-const INITIAL_SCHEDULE = [
+const INITIAL_SCHEDULE: ScheduleEntry[] = [
   { id: 1, subjectId: 1, roomId: 1, day: 1, startTime: 7, endTime: 9 },
   { id: 2, subjectId: 2, roomId: 2, day: 1, startTime: 10, endTime: 12 },
   { id: 3, subjectId: 3, roomId: 3, day: 2, startTime: 7, endTime: 9 },
@@ -37,10 +45,8 @@ const INITIAL_SCHEDULE = [
   { id: 8, subjectId: 3, roomId: 1, day: 2, startTime: 13, endTime: 16 },
 ];
 
-const CELL_HEIGHT = 64;
-
-function useLocalStorage(key, initial) {
-  const [val, setVal] = useState(() => {
+function useLocalStorage<T>(key: string, initial: T): [T, React.Dispatch<React.SetStateAction<T>>] {
+  const [val, setVal] = useState<T>(() => {
     try { const s = localStorage.getItem(key); return s ? JSON.parse(s) : initial; }
     catch { return initial; }
   });
@@ -49,24 +55,24 @@ function useLocalStorage(key, initial) {
 }
 
 export default function App() {
-  const [subjects, setSubjects] = useLocalStorage("tkb_subjects", INITIAL_SUBJECTS);
-  const [rooms, setRooms] = useLocalStorage("tkb_rooms", INITIAL_ROOMS);
-  const [schedule, setSchedule] = useLocalStorage("tkb_schedule", INITIAL_SCHEDULE);
-  const [role, setRole] = useLocalStorage("tkb_role", "student");
+  const [subjects, setSubjects] = useLocalStorage<Subject[]>("tkb_subjects", INITIAL_SUBJECTS);
+  const [rooms, setRooms] = useLocalStorage<Room[]>("tkb_rooms", INITIAL_ROOMS);
+  const [schedule, setSchedule] = useLocalStorage<ScheduleEntry[]>("tkb_schedule", INITIAL_SCHEDULE);
+  const [role, setRole] = useLocalStorage<string>("tkb_role", "student");
   const [view, setView] = useState("timetable");
   const [showLogin, setShowLogin] = useState(false);
-  const [loginForm, setLoginForm] = useState({ username: "", password: "", error: "" });
-  const [selectedEntry, setSelectedEntry] = useState(null);
+  const [loginForm, setLoginForm] = useState<LoginForm>({ username: "", password: "", error: "" });
+  const [selectedEntry, setSelectedEntry] = useState<ScheduleEntry | null>(null);
   const [showAddSchedule, setShowAddSchedule] = useState(false);
   const [showAddSubject, setShowAddSubject] = useState(false);
   const [showAddRoom, setShowAddRoom] = useState(false);
-  const [editEntry, setEditEntry] = useState(null);
-  const [nextId, setNextId] = useLocalStorage("tkb_nextid", 100);
+  const [editEntry, setEditEntry] = useState<ScheduleEntry | null>(null);
+  const [nextId, setNextId] = useLocalStorage<number>("tkb_nextid", 100);
 
-  const getSubject = (id) => subjects.find(s => s.id === id);
-  const getRoom = (id) => rooms.find(r => r.id === id);
+  const getSubject = (id: number) => subjects.find(s => s.id === id);
+  const getRoom = (id: number) => rooms.find(r => r.id === id);
 
-  function handleLogin(e) {
+  function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     if (loginForm.username === "admin" && loginForm.password === "admin123") {
       setRole("admin"); setShowLogin(false); setLoginForm({ username: "", password: "", error: "" });
@@ -77,9 +83,10 @@ export default function App() {
     }
   }
 
-  function addScheduleEntry(form) {
-    const sub = parseInt(form.subjectId), day = parseInt(form.day);
-    const start = parseInt(form.startTime), end = parseInt(form.endTime);
+  function addScheduleEntry(form: ScheduleForm): string | null {
+    const day = parseInt(String(form.day));
+    const start = parseInt(String(form.startTime));
+    const end = parseInt(String(form.endTime));
     const conflict = schedule.find(s =>
       s.day === day && s.id !== (editEntry?.id) &&
       ((start >= s.startTime && start < s.endTime) || (end > s.startTime && end <= s.endTime) || (start <= s.startTime && end >= s.endTime))
@@ -87,20 +94,20 @@ export default function App() {
     if (conflict) return "Trùng lịch! Vui lòng chọn thời gian khác.";
     if (end <= start) return "Giờ kết thúc phải sau giờ bắt đầu!";
     if (editEntry) {
-      setSchedule(prev => prev.map(s => s.id === editEntry.id ? { ...s, subjectId: sub, roomId: parseInt(form.roomId), day, startTime: start, endTime: end } : s));
+      setSchedule(prev => prev.map(s => s.id === editEntry.id ? { ...s, subjectId: parseInt(String(form.subjectId)), roomId: parseInt(String(form.roomId)), day, startTime: start, endTime: end } : s));
     } else {
       const id = nextId; setNextId(id + 1);
-      setSchedule(prev => [...prev, { id, subjectId: sub, roomId: parseInt(form.roomId), day, startTime: start, endTime: end }]);
+      setSchedule(prev => [...prev, { id, subjectId: parseInt(String(form.subjectId)), roomId: parseInt(String(form.roomId)), day, startTime: start, endTime: end }]);
     }
     return null;
   }
 
-  function deleteEntry(id) {
+  function deleteEntry(id: number) {
     setSchedule(prev => prev.filter(s => s.id !== id));
     setSelectedEntry(null);
   }
 
-  const headerStyle = {
+  const headerStyle: React.CSSProperties = {
     background: "linear-gradient(135deg, #0D47A1 0%, #1565C0 50%, #1976D2 100%)",
     color: "white", padding: "0 24px", display: "flex", alignItems: "center",
     justifyContent: "space-between", boxShadow: "0 2px 8px rgba(0,0,0,0.3)", minHeight: 64, flexWrap: "wrap", gap: 8
@@ -108,7 +115,6 @@ export default function App() {
 
   return (
     <div style={{ minHeight: "100vh", background: "#F5F7FA", fontFamily: "'Segoe UI', sans-serif" }}>
-      {/* Header */}
       <header style={headerStyle}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ width: 36, height: 36, background: "rgba(255,255,255,0.2)", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>🎓</div>
@@ -118,12 +124,12 @@ export default function App() {
           </div>
         </div>
         <nav style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-          {[["timetable", "📅 Thời Khóa Biểu"], ...(role === "admin" ? [["subjects", "📚 Môn Học"], ["rooms", "🏫 Phòng Học"]] : [])].map(([v, label]) => (
+          {([["timetable", "📅 Thời Khóa Biểu"], ...(role === "admin" ? [["subjects", "📚 Môn Học"], ["rooms", "🏫 Phòng Học"]] : [])] as [string, string][]).map(([v, label]) => (
             <button key={v} onClick={() => setView(v)} style={{ background: view === v ? "rgba(255,255,255,0.25)" : "transparent", border: "1px solid rgba(255,255,255,0.3)", color: "white", padding: "6px 14px", borderRadius: 6, cursor: "pointer", fontSize: 13, fontWeight: view === v ? 600 : 400 }}>{label}</button>
           ))}
           <div style={{ width: 1, height: 24, background: "rgba(255,255,255,0.3)", margin: "0 4px" }} />
           {role === "admin"
-            ? <button onClick={() => { setRole("student"); }} style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.4)", color: "white", padding: "6px 14px", borderRadius: 6, cursor: "pointer", fontSize: 13 }}>👤 Đăng xuất</button>
+            ? <button onClick={() => setRole("student")} style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.4)", color: "white", padding: "6px 14px", borderRadius: 6, cursor: "pointer", fontSize: 13 }}>👤 Đăng xuất</button>
             : <button onClick={() => setShowLogin(true)} style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.4)", color: "white", padding: "6px 14px", borderRadius: 6, cursor: "pointer", fontSize: 13 }}>🔐 Admin</button>
           }
           <div style={{ background: role === "admin" ? "#FFD600" : "rgba(255,255,255,0.2)", color: role === "admin" ? "#1A237E" : "white", padding: "4px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600 }}>
@@ -138,7 +144,6 @@ export default function App() {
         {view === "rooms" && role === "admin" && <RoomsView rooms={rooms} setRooms={setRooms} nextId={nextId} setNextId={setNextId} showAdd={showAddRoom} setShowAdd={setShowAddRoom} />}
       </main>
 
-      {/* Modals */}
       {showLogin && <LoginModal form={loginForm} setForm={setLoginForm} onLogin={handleLogin} onClose={() => { setShowLogin(false); setLoginForm({ username: "", password: "", error: "" }); }} />}
       {selectedEntry && <EntryModal entry={selectedEntry} getSubject={getSubject} getRoom={getRoom} role={role} onClose={() => setSelectedEntry(null)} onDelete={deleteEntry} onEdit={(e) => { setEditEntry(e); setSelectedEntry(null); setShowAddSchedule(true); }} />}
       {showAddSchedule && <AddScheduleModal subjects={subjects} rooms={rooms} editEntry={editEntry} onSave={(form) => { const err = addScheduleEntry(form); if (!err) { setShowAddSchedule(false); setEditEntry(null); } return err; }} onClose={() => { setShowAddSchedule(false); setEditEntry(null); }} />}
@@ -146,8 +151,12 @@ export default function App() {
   );
 }
 
-function TimetableView({ schedule, subjects, rooms, getSubject, getRoom, role, onSelect, onAdd }) {
-  const today = new Date().getDay(); // 0=Sun,1=Mon...6=Sat
+function TimetableView({ schedule, subjects, rooms, getSubject, getRoom, role, onSelect, onAdd }: {
+  schedule: ScheduleEntry[]; subjects: Subject[]; rooms: Room[];
+  getSubject: (id: number) => Subject | undefined; getRoom: (id: number) => Room | undefined;
+  role: string; onSelect: (e: ScheduleEntry) => void; onAdd: () => void;
+}) {
+  const today = new Date().getDay();
   const todayColIdx = today >= 1 && today <= 6 ? today - 1 : -1;
 
   return (
@@ -162,7 +171,6 @@ function TimetableView({ schedule, subjects, rooms, getSubject, getRoom, role, o
 
       <div style={{ overflowX: "auto", borderRadius: 12, boxShadow: "0 2px 12px rgba(0,0,0,0.1)", background: "white" }}>
         <div style={{ minWidth: 700 }}>
-          {/* Header row */}
           <div style={{ display: "grid", gridTemplateColumns: "72px repeat(6, 1fr)", background: "#0D47A1" }}>
             <div style={{ padding: "12px 8px", color: "rgba(255,255,255,0.7)", fontSize: 12, textAlign: "center", fontWeight: 600 }}>GIỜ</div>
             {DAYS.map((d, i) => (
@@ -172,10 +180,8 @@ function TimetableView({ schedule, subjects, rooms, getSubject, getRoom, role, o
             ))}
           </div>
 
-          {/* Grid body */}
           <div style={{ position: "relative" }}>
-            {/* Hour rows */}
-            {HOURS.map((hour, hi) => (
+            {HOURS.map((hour) => (
               <div key={hour} style={{ display: "grid", gridTemplateColumns: "72px repeat(6, 1fr)", borderBottom: "1px solid #E8EAF6", minHeight: CELL_HEIGHT }}>
                 <div style={{ padding: "8px 4px", fontSize: 12, color: "#5C6BC0", textAlign: "center", fontWeight: 600, borderRight: "1px solid #E8EAF6", background: "#F8F9FE", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start" }}>
                   <span>{hour}:00</span>
@@ -186,7 +192,6 @@ function TimetableView({ schedule, subjects, rooms, getSubject, getRoom, role, o
               </div>
             ))}
 
-            {/* Schedule blocks - absolutely positioned */}
             {schedule.map(entry => {
               const sub = subjects.find(s => s.id === entry.subjectId);
               const room = rooms.find(r => r.id === entry.roomId);
@@ -206,8 +211,8 @@ function TimetableView({ schedule, subjects, rooms, getSubject, getRoom, role, o
                   overflow: "hidden", transition: "transform 0.1s, box-shadow 0.1s",
                   boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
                 }}
-                  onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.02)"; e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.3)"; }}
-                  onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.boxShadow = "0 2px 6px rgba(0,0,0,0.2)"; }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = "scale(1.02)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 4px 12px rgba(0,0,0,0.3)"; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = "scale(1)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 2px 6px rgba(0,0,0,0.2)"; }}
                 >
                   <div style={{ color: "white", fontWeight: 700, fontSize: 12, lineHeight: 1.3, marginBottom: 2 }}>{sub.name}</div>
                   {height > 50 && <div style={{ color: "rgba(255,255,255,0.85)", fontSize: 11 }}>{sub.teacher}</div>}
@@ -220,7 +225,6 @@ function TimetableView({ schedule, subjects, rooms, getSubject, getRoom, role, o
         </div>
       </div>
 
-      {/* Legend */}
       <div style={{ marginTop: 16, display: "flex", gap: 12, flexWrap: "wrap" }}>
         {subjects.map(s => (
           <div key={s.id} style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -233,15 +237,19 @@ function TimetableView({ schedule, subjects, rooms, getSubject, getRoom, role, o
   );
 }
 
-function SubjectsView({ subjects, setSubjects, nextId, setNextId, showAdd, setShowAdd }) {
+function SubjectsView({ subjects, setSubjects, nextId, setNextId, showAdd, setShowAdd }: {
+  subjects: Subject[]; setSubjects: React.Dispatch<React.SetStateAction<Subject[]>>;
+  nextId: number; setNextId: React.Dispatch<React.SetStateAction<number>>;
+  showAdd: boolean; setShowAdd: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
   const [form, setForm] = useState({ name: "", teacher: "", colorIdx: 0 });
   const [error, setError] = useState("");
 
-  function handleAdd(e) {
+  function handleAdd(e: React.FormEvent) {
     e.preventDefault();
     if (!form.name.trim() || !form.teacher.trim()) { setError("Vui lòng điền đầy đủ!"); return; }
     const id = nextId; setNextId(id + 1);
-    setSubjects(prev => [...prev, { id, name: form.name.trim(), teacher: form.teacher.trim(), colorIdx: parseInt(form.colorIdx) }]);
+    setSubjects(prev => [...prev, { id, name: form.name.trim(), teacher: form.teacher.trim(), colorIdx: form.colorIdx }]);
     setForm({ name: "", teacher: "", colorIdx: 0 }); setShowAdd(false); setError("");
   }
 
@@ -264,7 +272,7 @@ function SubjectsView({ subjects, setSubjects, nextId, setNextId, showAdd, setSh
             <label style={labelSt}>Màu sắc</label>
             <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
               {COLORS.map((c, i) => (
-                <div key={i} onClick={() => setForm(f => ({ ...f, colorIdx: i }))} style={{ width: 28, height: 28, background: c.bg, borderRadius: 6, cursor: "pointer", border: form.colorIdx == i ? "3px solid #333" : "2px solid transparent" }} />
+                <div key={i} onClick={() => setForm(f => ({ ...f, colorIdx: i }))} style={{ width: 28, height: 28, background: c.bg, borderRadius: 6, cursor: "pointer", border: form.colorIdx === i ? "3px solid #333" : "2px solid transparent" }} />
               ))}
             </div>
           </div>
@@ -296,11 +304,15 @@ function SubjectsView({ subjects, setSubjects, nextId, setNextId, showAdd, setSh
   );
 }
 
-function RoomsView({ rooms, setRooms, nextId, setNextId, showAdd, setShowAdd }) {
+function RoomsView({ rooms, setRooms, nextId, setNextId, showAdd, setShowAdd }: {
+  rooms: Room[]; setRooms: React.Dispatch<React.SetStateAction<Room[]>>;
+  nextId: number; setNextId: React.Dispatch<React.SetStateAction<number>>;
+  showAdd: boolean; setShowAdd: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
   const [name, setName] = useState("");
   const [error, setError] = useState("");
 
-  function handleAdd(e) {
+  function handleAdd(e: React.FormEvent) {
     e.preventDefault();
     if (!name.trim()) { setError("Vui lòng nhập tên phòng!"); return; }
     const id = nextId; setNextId(id + 1);
@@ -340,7 +352,10 @@ function RoomsView({ rooms, setRooms, nextId, setNextId, showAdd, setShowAdd }) 
   );
 }
 
-function LoginModal({ form, setForm, onLogin, onClose }) {
+function LoginModal({ form, setForm, onLogin, onClose }: {
+  form: LoginForm; setForm: React.Dispatch<React.SetStateAction<LoginForm>>;
+  onLogin: (e: React.FormEvent) => void; onClose: () => void;
+}) {
   return (
     <ModalOverlay onClose={onClose}>
       <h2 style={{ margin: "0 0 20px", color: "#1A237E", fontSize: 20 }}>🔐 Đăng Nhập Admin</h2>
@@ -365,7 +380,11 @@ function LoginModal({ form, setForm, onLogin, onClose }) {
   );
 }
 
-function EntryModal({ entry, getSubject, getRoom, role, onClose, onDelete, onEdit }) {
+function EntryModal({ entry, getSubject, getRoom, role, onClose, onDelete, onEdit }: {
+  entry: ScheduleEntry; getSubject: (id: number) => Subject | undefined;
+  getRoom: (id: number) => Room | undefined; role: string;
+  onClose: () => void; onDelete: (id: number) => void; onEdit: (e: ScheduleEntry) => void;
+}) {
   const sub = getSubject(entry.subjectId);
   const room = getRoom(entry.roomId);
   const color = COLORS[(sub?.colorIdx || 0) % COLORS.length];
@@ -376,7 +395,7 @@ function EntryModal({ entry, getSubject, getRoom, role, onClose, onDelete, onEdi
         <div style={{ color: "rgba(255,255,255,0.85)", fontSize: 14, marginTop: 4 }}>{sub?.teacher}</div>
       </div>
       <div style={{ display: "grid", gap: 10 }}>
-        {[["🏫 Phòng học", room?.name], ["📅 Ngày", DAYS[entry.day - 1]], ["⏰ Thời gian", `${entry.startTime}:00 – ${entry.endTime}:00`], ["⌛ Số tiết", `${entry.endTime - entry.startTime} tiết`]].map(([label, val]) => (
+        {([["🏫 Phòng học", room?.name], ["📅 Ngày", DAYS[entry.day - 1]], ["⏰ Thời gian", `${entry.startTime}:00 – ${entry.endTime}:00`], ["⌛ Số tiết", `${entry.endTime - entry.startTime} tiết`]] as [string, string | undefined][]).map(([label, val]) => (
           <div key={label} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid #E8EAF6" }}>
             <span style={{ color: "#666", fontSize: 14 }}>{label}</span>
             <span style={{ fontWeight: 600, color: "#1A237E", fontSize: 14 }}>{val}</span>
@@ -395,8 +414,11 @@ function EntryModal({ entry, getSubject, getRoom, role, onClose, onDelete, onEdi
   );
 }
 
-function AddScheduleModal({ subjects, rooms, editEntry, onSave, onClose }) {
-  const [form, setForm] = useState({
+function AddScheduleModal({ subjects, rooms, editEntry, onSave, onClose }: {
+  subjects: Subject[]; rooms: Room[]; editEntry: ScheduleEntry | null;
+  onSave: (form: ScheduleForm) => string | null; onClose: () => void;
+}) {
+  const [form, setForm] = useState<ScheduleForm>({
     subjectId: editEntry?.subjectId || subjects[0]?.id || "",
     roomId: editEntry?.roomId || rooms[0]?.id || "",
     day: editEntry?.day || 1,
@@ -451,7 +473,7 @@ function AddScheduleModal({ subjects, rooms, editEntry, onSave, onClose }) {
   );
 }
 
-function ModalOverlay({ children, onClose }) {
+function ModalOverlay({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
   return (
     <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 16 }}>
       <div onClick={e => e.stopPropagation()} style={{ background: "white", borderRadius: 16, padding: 24, width: "100%", maxWidth: 480, maxHeight: "90vh", overflowY: "auto", boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }}>
@@ -461,7 +483,7 @@ function ModalOverlay({ children, onClose }) {
   );
 }
 
-const labelSt = { display: "block", fontSize: 13, fontWeight: 600, color: "#444", marginBottom: 4 };
-const inputSt = { width: "100%", padding: "9px 12px", border: "1px solid #C5CAE9", borderRadius: 8, fontSize: 14, boxSizing: "border-box", outline: "none", background: "white" };
-const btnPrimary = { background: "#1565C0", color: "white", border: "none", padding: "10px 20px", borderRadius: 8, cursor: "pointer", fontWeight: 600, fontSize: 14 };
-const btnSecondary = { background: "white", color: "#444", border: "1px solid #C5CAE9", padding: "10px 20px", borderRadius: 8, cursor: "pointer", fontSize: 14 };
+const labelSt: React.CSSProperties = { display: "block", fontSize: 13, fontWeight: 600, color: "#444", marginBottom: 4 };
+const inputSt: React.CSSProperties = { width: "100%", padding: "9px 12px", border: "1px solid #C5CAE9", borderRadius: 8, fontSize: 14, boxSizing: "border-box", outline: "none", background: "white" };
+const btnPrimary: React.CSSProperties = { background: "#1565C0", color: "white", border: "none", padding: "10px 20px", borderRadius: 8, cursor: "pointer", fontWeight: 600, fontSize: 14 };
+const btnSecondary: React.CSSProperties = { background: "white", color: "#444", border: "1px solid #C5CAE9", padding: "10px 20px", borderRadius: 8, cursor: "pointer", fontSize: 14 };
