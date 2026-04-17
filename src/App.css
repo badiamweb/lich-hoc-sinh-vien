@@ -7,6 +7,7 @@ h2 {
   text-align: center;
 }
 
+/* TABLE */
 .table {
   width: 100%;
 }
@@ -17,41 +18,53 @@ h2 {
   grid-template-columns: 100px repeat(6, 1fr);
 }
 
+/* HEADER */
 .header div {
   background: #2c3e90;
   color: white;
-  padding: 10px;
+  padding: 12px;
   text-align: center;
   font-weight: bold;
+  border: 1px solid #2c3e90;
 }
 
+/* CELL */
 .cell {
   border: 1px solid #ddd;
-  height: 60px;
+  height: 60px; /* QUAN TRỌNG */
   position: relative;
 }
 
+/* TIME COLUMN */
 .time {
   background: #f5f5f5;
   text-align: center;
   line-height: 60px;
   border: 1px solid #ddd;
+  font-weight: 500;
 }
 
+/* CLASS BOX */
 .class {
-  position: absolute;
+  position: absolute; /* QUAN TRỌNG */
   top: 5px;
   left: 5px;
   right: 5px;
+
   background: linear-gradient(135deg, #3b6ff5, #2c3e90);
   color: white;
-  border-radius: 10px;
-  padding: 6px;
+
+  border-radius: 12px;
+  padding: 8px;
+
   font-size: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
 
+/* TEXT */
 .class b {
   display: block;
+  font-size: 13px;
   margin-bottom: 4px;
 }
 
