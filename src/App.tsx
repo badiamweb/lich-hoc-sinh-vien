@@ -1,6 +1,20 @@
 import { useState, useEffect } from "react";
 
 const DAYS = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
+
+// Lấy ngày thật của tuần hiện tại (Thứ 2 → Thứ 7)
+function getWeekDates(): string[] {
+  const today = new Date();
+  const day = today.getDay(); // 0=CN, 1=T2...6=T7
+  const monday = new Date(today);
+  const diff = day === 0 ? -6 : 1 - day;
+  monday.setDate(today.getDate() + diff);
+  return Array.from({ length: 6 }, (_, i) => {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    return `${d.getDate()}/${d.getMonth() + 1}`;
+  });
+}
 const HOURS = Array.from({ length: 12 }, (_, i) => i + 7);
 
 const COLORS = [
@@ -72,12 +86,18 @@ export default function App() {
   const getSubject = (id: number) => subjects.find(s => s.id === id);
   const getRoom = (id: number) => rooms.find(r => r.id === id);
 
+  const ACCOUNTS = [
+    { username: "admin", password: "admin123", role: "admin" },
+    { username: "sv001", password: "sv001", role: "student" },
+    { username: "sv002", password: "sv002", role: "student" },
+    { username: "sv003", password: "sv003", role: "student" },
+  ];
+
   function handleLogin(e: React.FormEvent) {
     e.preventDefault();
-    if (loginForm.username === "admin" && loginForm.password === "admin123") {
-      setRole("admin"); setShowLogin(false); setLoginForm({ username: "", password: "", error: "" });
-    } else if (loginForm.username === "sv" && loginForm.password === "sv123") {
-      setRole("student"); setShowLogin(false); setLoginForm({ username: "", password: "", error: "" });
+    const found = ACCOUNTS.find(a => a.username === loginForm.username && a.password === loginForm.password);
+    if (found) {
+      setRole(found.role); setShowLogin(false); setLoginForm({ username: "", password: "", error: "" });
     } else {
       setLoginForm(f => ({ ...f, error: "Sai tài khoản hoặc mật khẩu!" }));
     }
@@ -128,12 +148,12 @@ export default function App() {
             <button key={v} onClick={() => setView(v)} style={{ background: view === v ? "rgba(255,255,255,0.25)" : "transparent", border: "1px solid rgba(255,255,255,0.3)", color: "white", padding: "6px 14px", borderRadius: 6, cursor: "pointer", fontSize: 13, fontWeight: view === v ? 600 : 400 }}>{label}</button>
           ))}
           <div style={{ width: 1, height: 24, background: "rgba(255,255,255,0.3)", margin: "0 4px" }} />
-          {role === "admin"
-            ? <button onClick={() => setRole("student")} style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.4)", color: "white", padding: "6px 14px", borderRadius: 6, cursor: "pointer", fontSize: 13 }}>👤 Đăng xuất</button>
-            : <button onClick={() => setShowLogin(true)} style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.4)", color: "white", padding: "6px 14px", borderRadius: 6, cursor: "pointer", fontSize: 13 }}>🔐 Admin</button>
+          {role !== "guest"
+            ? <button onClick={() => { setRole("guest"); }} style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.4)", color: "white", padding: "6px 14px", borderRadius: 6, cursor: "pointer", fontSize: 13 }}>👤 Đăng xuất</button>
+            : <button onClick={() => setShowLogin(true)} style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.4)", color: "white", padding: "6px 14px", borderRadius: 6, cursor: "pointer", fontSize: 13 }}>🔐 Đăng nhập</button>
           }
-          <div style={{ background: role === "admin" ? "#FFD600" : "rgba(255,255,255,0.2)", color: role === "admin" ? "#1A237E" : "white", padding: "4px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600 }}>
-            {role === "admin" ? "ADMIN" : "Sinh Viên"}
+          <div style={{ background: role === "admin" ? "#FFD600" : role === "student" ? "#69F0AE" : "rgba(255,255,255,0.2)", color: role === "admin" || role === "student" ? "#1A237E" : "white", padding: "4px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600 }}>
+            {role === "admin" ? "ADMIN" : role === "student" ? "Sinh Viên" : "Khách"}
           </div>
         </nav>
       </header>
@@ -158,6 +178,7 @@ function TimetableView({ schedule, subjects, rooms, getSubject, getRoom, role, o
 }) {
   const today = new Date().getDay();
   const todayColIdx = today >= 1 && today <= 6 ? today - 1 : -1;
+  const weekDates = getWeekDates();
 
   return (
     <div>
@@ -174,8 +195,10 @@ function TimetableView({ schedule, subjects, rooms, getSubject, getRoom, role, o
           <div style={{ display: "grid", gridTemplateColumns: "72px repeat(6, 1fr)", background: "#0D47A1" }}>
             <div style={{ padding: "12px 8px", color: "rgba(255,255,255,0.7)", fontSize: 12, textAlign: "center", fontWeight: 600 }}>GIỜ</div>
             {DAYS.map((d, i) => (
-              <div key={i} style={{ padding: "12px 4px", color: "white", fontSize: 13, textAlign: "center", fontWeight: 700, background: i === todayColIdx ? "rgba(255,255,255,0.2)" : "transparent", borderLeft: "1px solid rgba(255,255,255,0.1)" }}>
-                {d}{i === todayColIdx && <div style={{ fontSize: 10, opacity: 0.8 }}>Hôm nay</div>}
+              <div key={i} style={{ padding: "10px 4px", color: "white", fontSize: 13, textAlign: "center", fontWeight: 700, background: i === todayColIdx ? "rgba(255,255,255,0.2)" : "transparent", borderLeft: "1px solid rgba(255,255,255,0.1)" }}>
+                <div>{d}</div>
+                <div style={{ fontSize: 12, opacity: 0.85, marginTop: 2 }}>{weekDates[i]}</div>
+                {i === todayColIdx && <div style={{ fontSize: 10, background: "rgba(255,255,0,0.3)", borderRadius: 4, padding: "1px 4px", marginTop: 2 }}>Hôm nay</div>}
               </div>
             ))}
           </div>
@@ -362,7 +385,7 @@ function LoginModal({ form, setForm, onLogin, onClose }: {
       {form.error && <div style={{ background: "#FFEBEE", color: "#C62828", padding: "8px 12px", borderRadius: 6, marginBottom: 12, fontSize: 13 }}>{form.error}</div>}
       <div style={{ background: "#E3F2FD", borderRadius: 8, padding: 12, marginBottom: 16, fontSize: 13, color: "#1565C0" }}>
         <strong>Admin:</strong> admin / admin123<br />
-        <strong>Sinh viên:</strong> sv / sv123
+        <strong>Sinh viên:</strong> sv001 / sv001 &nbsp;|&nbsp; sv002 / sv002 &nbsp;|&nbsp; sv003 / sv003
       </div>
       <div style={{ marginBottom: 12 }}>
         <label style={labelSt}>Tài khoản</label>
