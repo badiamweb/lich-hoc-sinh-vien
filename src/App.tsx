@@ -15,7 +15,7 @@ function getWeekDates(): string[] {
     return `${d.getDate()}/${d.getMonth() + 1}`;
   });
 }
-const HOURS = Array.from({ length: 12 }, (_, i) => i + 7);
+const HOURS = Array.from({ length: 14 }, (_, i) => i + 7);
 
 const COLORS = [
   { bg: "#1565C0", border: "#1976D2" },
