@@ -137,7 +137,7 @@ export default function App() {
     <div style={{ minHeight: "100vh", background: "#F5F7FA", fontFamily: "'Segoe UI', sans-serif" }}>
       <header style={headerStyle}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <img src="/ảnh logo.png" alt="Logo" style={{ height: 48, width: 48, objectFit: "contain", borderRadius: 6, background: "white", padding: 2 }} />
+          <img src="/anh logo.png" alt="Logo" style={{ height: 48, width: 48, objectFit: "contain", borderRadius: 6, background: "white", padding: 2 }} />
           <div>
             <div style={{ fontWeight: 700, fontSize: 16 }}>TRƯỜNG ĐẠI HỌC GIA ĐỊNH</div>
             <div style={{ fontSize: 11, opacity: 0.8 }}>Hệ thống Thời Khóa Biểu Sinh Viên</div>
