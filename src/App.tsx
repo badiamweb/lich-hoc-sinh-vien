@@ -382,7 +382,7 @@ function LoginModal({ form, setForm, onLogin, onClose }: {
   return (
     <ModalOverlay onClose={onClose}>
       <h2 style={{ margin: "0 0 20px", color: "#1A237E", fontSize: 20 }}>🔐 Đăng Nhập</h2>
-      {form.error && <div style={{ background: "#FFEBEE", color: "#C62828", padding: "8px 12px", borderRadius: 6, marginBottom: 12, fontSize: 13 }}>{form.error}</div>}
+      {form.error && 
       
       <div style={{ marginBottom: 12 }}>
         <label style={labelSt}>Tài khoản</label>
