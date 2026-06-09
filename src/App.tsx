@@ -87,10 +87,10 @@ export default function App() {
   const getRoom = (id: number) => rooms.find(r => r.id === id);
 
   const ACCOUNTS = [
-    { username: "admin", password: "admin123", role: "admin" },
-    { username: "sv001", password: "sv001", role: "student" },
-    { username: "sv002", password: "sv002", role: "student" },
-    { username: "sv003", password: "sv003", role: "student" },
+    { username: "admin", password: "1", role: "admin" },
+    { username: "25150586", password: "triet2007", role: "student" },
+    { username: "25150586", password: "triet2007", role: "student" },
+    { username: "25150586", password: "triet2007", role: "student" },
   ];
 
   function handleLogin(e: React.FormEvent) {
