@@ -383,10 +383,7 @@ function LoginModal({ form, setForm, onLogin, onClose }: {
     <ModalOverlay onClose={onClose}>
       <h2 style={{ margin: "0 0 20px", color: "#1A237E", fontSize: 20 }}>🔐 Đăng Nhập</h2>
       {form.error && <div style={{ background: "#FFEBEE", color: "#C62828", padding: "8px 12px", borderRadius: 6, marginBottom: 12, fontSize: 13 }}>{form.error}</div>}
-      <div style={{ background: "#E3F2FD", borderRadius: 8, padding: 12, marginBottom: 16, fontSize: 13, color: "#1565C0" }}>
-        <strong>Admin:</strong> admin / admin123<br />
-        <strong>Sinh viên:</strong> sv001 / sv001 &nbsp;|&nbsp; sv002 / sv002 &nbsp;|&nbsp; sv003 / sv003
-      </div>
+      
       <div style={{ marginBottom: 12 }}>
         <label style={labelSt}>Tài khoản</label>
         <input value={form.username} onChange={e => setForm(f => ({ ...f, username: e.target.value }))} style={inputSt} placeholder="username" />
