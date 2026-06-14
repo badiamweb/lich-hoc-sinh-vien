@@ -185,7 +185,7 @@ function TimetableView({ schedule, subjects, rooms, getSubject, getRoom, role, o
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, flexWrap: "wrap", gap: 8 }}>
         <div>
           <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: "#1A237E" }}>📅 Thời Khóa Biểu</h2>
-          <p style={{ margin: "2px 0 0", color: "#666", fontSize: 13 }}>Học kỳ 2 - Năm học 2024-2025</p>
+          <p style={{ margin: "2px 0 0", color: "#666", fontSize: 13 }}>Học kỳ 2 - Năm học 2026-2027</p>
         </div>
         {role === "admin" && <button onClick={onAdd} style={{ background: "#1565C0", color: "white", border: "none", padding: "10px 20px", borderRadius: 8, cursor: "pointer", fontWeight: 600, fontSize: 14 }}>+ Thêm Lịch Học</button>}
       </div>
