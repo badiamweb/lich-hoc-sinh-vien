@@ -83,6 +83,11 @@ export default function App() {
   const [editEntry, setEditEntry] = useState<ScheduleEntry | null>(null);
   const [nextId, setNextId] = useLocalStorage<number>("tkb_nextid", 100);
 
+  const studentInfo = {
+    name: "Nguyễn Hoàng Minh Triết",
+    id: "2212001048"
+  };
+
   const getSubject = (id: number) => subjects.find(s => s.id === id);
   const getRoom = (id: number) => rooms.find(r => r.id === id);
 
@@ -143,11 +148,20 @@ export default function App() {
             <div style={{ fontSize: 11, opacity: 0.8 }}>Hệ thống Thời Khóa Biểu Sinh Viên</div>
           </div>
         </div>
-        <nav style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+        <nav style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
           {([["timetable", "📅 Thời Khóa Biểu"], ...(role === "admin" ? [["subjects", "📚 Môn Học"], ["rooms", "🏫 Phòng Học"]] : [])] as [string, string][]).map(([v, label]) => (
             <button key={v} onClick={() => setView(v)} style={{ background: view === v ? "rgba(255,255,255,0.25)" : "transparent", border: "1px solid rgba(255,255,255,0.3)", color: "white", padding: "6px 14px", borderRadius: 6, cursor: "pointer", fontSize: 13, fontWeight: view === v ? 600 : 400 }}>{label}</button>
           ))}
           <div style={{ width: 1, height: 24, background: "rgba(255,255,255,0.3)", margin: "0 4px" }} />
+          
+          {/* Student Info */}
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 2, background: "rgba(255,255,255,0.12)", padding: "8px 12px", borderRadius: 8, backdropFilter: "blur(10px)" }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "white" }}>👤 {studentInfo.name}</div>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.85)" }}>ID: {studentInfo.id}</div>
+          </div>
+
+          <div style={{ width: 1, height: 24, background: "rgba(255,255,255,0.3)", margin: "0 4px" }} />
+          
           {role !== "guest"
             ? <button onClick={() => { setRole("guest"); }} style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.4)", color: "white", padding: "6px 14px", borderRadius: 6, cursor: "pointer", fontSize: 13 }}>👤 Đăng xuất</button>
             : <button onClick={() => setShowLogin(true)} style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.4)", color: "white", padding: "6px 14px", borderRadius: 6, cursor: "pointer", fontSize: 13 }}>🔐 Đăng nhập</button>
@@ -382,8 +396,7 @@ function LoginModal({ form, setForm, onLogin, onClose }: {
   return (
     <ModalOverlay onClose={onClose}>
       <h2 style={{ margin: "0 0 20px", color: "#1A237E", fontSize: 20 }}>🔐 Đăng Nhập</h2>
-      {form.error && 
-      
+      {form.error && <div style={{ background: "#FFEBEE", color: "#C62828", padding: "8px 12px", borderRadius: 6, marginBottom: 12, fontSize: 13 }}>{form.error}</div>}
       <div style={{ marginBottom: 12 }}>
         <label style={labelSt}>Tài khoản</label>
         <input value={form.username} onChange={e => setForm(f => ({ ...f, username: e.target.value }))} style={inputSt} placeholder="username" />
